@@ -23,6 +23,8 @@
     "resolve": "^1.15.1",
     "serve-static": "^1.14.1",
     "acorn": "^8.0.4",
+    "acorn-class-fields": "^0.3.7",
+    "acorn-private-methods": "^0.3.3",
     "acorn-walk": "^8.0.0"
   }
 }
