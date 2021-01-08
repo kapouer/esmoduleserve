@@ -2,7 +2,12 @@ const pth = require("path"), fs = require("fs")
 const resolve = require("resolve")
 const {parse: parseURL} = require("url")
 const crypto = require("crypto")
-const acorn = require("acorn"), walk = require("acorn-walk")
+const { Parser } = require("acorn")
+const MyParser = Parser
+  .extend(require('acorn-private-methods'))
+  .extend(require('acorn-class-fields'))
+const walk = require("acorn-walk")
+
 
 class Cached {
   constructor(content, mimetype) {
@@ -87,7 +92,7 @@ class ModuleServer {
 
   resolveImports(basePath, code) {
     let patches = [], ast
-    try { ast = acorn.parse(code, {sourceType: "module", ecmaVersion: "latest"}) }
+    try { ast = MyParser.parse(code, {sourceType: "module", ecmaVersion: "latest"}) }
     catch(error) { return {error: error.toString()} }
     let isModule = false
     let patchSrc = (node) => {
@@ -111,6 +116,9 @@ class ModuleServer {
             patches.push({from: node.source.start, to: node.source.end, text: JSON.stringify(dash(path))})
         }
       }
+    }, {
+      ...walk.base,
+      FieldDefinition: () => {}
     })
     if (!isModule) {
       patches.push({
